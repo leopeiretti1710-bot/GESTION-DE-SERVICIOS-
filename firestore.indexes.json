@@ -1,0 +1,85 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "reclamos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaIngreso", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reclamos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "prioridad", "order": "ASCENDING" },
+        { "fieldPath": "fechaIngreso", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reclamos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "propiedadId", "order": "ASCENDING" },
+        { "fieldPath": "fechaIngreso", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "asignaciones_proveedores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "reclamoId", "order": "ASCENDING" },
+        { "fieldPath": "fechaAsignacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "asignaciones_proveedores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "proveedorId", "order": "ASCENDING" },
+        { "fieldPath": "fechaAsignacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "presupuestos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "reclamoId", "order": "ASCENDING" },
+        { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "autorizaciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "reclamoId", "order": "ASCENDING" },
+        { "fieldPath": "fechaRespuesta", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "eventos_calendario",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaInicio", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notificaciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estadoEnvio", "order": "ASCENDING" },
+        { "fieldPath": "fechaProgramada", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sugerencias_ia",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estadoRevision", "order": "ASCENDING" },
+        { "fieldPath": "fechaGeneracion", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
