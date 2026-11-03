@@ -69,7 +69,7 @@ export default function ClaimCard({ reclamo, onOpen }) {
       {/* Proveedor */}
       <div className="repair-provider">
         <small>Proveedor asignado</small>
-        <b>Sin asignar</b>
+        <b>{reclamo.proveedorNombre || 'Sin asignar'}</b>
       </div>
 
       {/* Boton ver detalle */}

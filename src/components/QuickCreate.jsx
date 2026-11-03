@@ -1,7 +1,7 @@
 // QuickCreate: modal para crear un reclamo nuevo
-// La propiedad se escribe en un INPUT de texto (no lista desplegable).
-// Al guardar, si la propiedad no existe en la coleccion 'propiedades'
-// se crea automaticamente, y el reclamo guarda propiedadId (modelo DER).
+// Propiedad e inquilino se escriben en INPUTS de texto (no listas).
+// Al guardar: si la propiedad o el inquilino no existen en la base,
+// se crean automaticos en sus colecciones (modelo DER del dbdiagram).
 import { useState, useEffect } from 'react'
 import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -24,19 +24,17 @@ export default function QuickCreate({ onClose, onCreate }) {
     const riesgo = f.get('riesgo') === 'on'
     const prioridadElegida = String(f.get('prioridad'))
 
-    // La propiedad se escribe a mano: texto limpio (sin espacios de mas)
+    // Textos escritos a mano, limpios (sin espacios de mas)
     const direccionEscrita = String(f.get('propiedad') || '').trim()
-    const inquilinoId = String(f.get('inquilinoId'))
-    const inquilino = inquilinos.find((i) => i.id === inquilinoId)
+    const nombreInquilino = String(f.get('inquilino') || '').trim()
 
-    // Buscamos la propiedad en la base por direccion (ignora mayusculas).
-    // Si no existe, se crea ahora en la coleccion 'propiedades'.
+    // --- PROPIEDAD: buscar por direccion; si no existe, crear ---
     let propiedadId = ''
-    const existente = propiedades.find(
+    const propiedadExistente = propiedades.find(
       (p) => (p.direccion || '').toLowerCase() === direccionEscrita.toLowerCase()
     )
-    if (existente) {
-      propiedadId = existente.id
+    if (propiedadExistente) {
+      propiedadId = propiedadExistente.id
     } else {
       const nueva = await addDoc(collection(db, 'propiedades'), {
         direccion: direccionEscrita,
@@ -54,11 +52,29 @@ export default function QuickCreate({ onClose, onCreate }) {
       propiedadId = nueva.id
     }
 
+    // --- INQUILINO: buscar por nombre; si no existe, crear ---
+    let inquilinoId = ''
+    const inquilinoExistente = inquilinos.find(
+      (i) => (i.nombre || '').toLowerCase() === nombreInquilino.toLowerCase()
+    )
+    if (inquilinoExistente) {
+      inquilinoId = inquilinoExistente.id
+    } else {
+      const nuevo = await addDoc(collection(db, 'inquilinos'), {
+        nombre: nombreInquilino,
+        telefono: String(f.get('telefono') || ''),
+        email: '',
+        observaciones: 'Creado automaticamente al generar un reclamo.',
+        fechaRegistro: serverTimestamp(),
+      })
+      inquilinoId = nuevo.id
+    }
+
     const nuevoReclamo = {
       propiedadId,
       propiedadDireccion: direccionEscrita,
-      inquilinoId: inquilinoId || '',
-      inquilinoNombre: inquilino ? inquilino.nombre : '',
+      inquilinoId,
+      inquilinoNombre: nombreInquilino,
       telefono: String(f.get('telefono') || ''),
       matricula: String(f.get('matricula') || ''),
       unidad: String(f.get('unidad') || ''),
@@ -86,7 +102,7 @@ export default function QuickCreate({ onClose, onCreate }) {
           <button type="button" className="icon-btn" onClick={onClose}>X</button>
         </div>
         <div className="form-grid">
-          {/* INPUT de texto: el usuario escribe la propiedad a mano.
+          {/* INPUT de texto: se escribe la propiedad a mano.
               Si no existe en la base, se guarda como propiedad nueva. */}
           <label className="full">
             Propiedad *
@@ -96,19 +112,27 @@ export default function QuickCreate({ onClose, onCreate }) {
               placeholder="Ej. Moron 1240"
               list="lista-propiedades"
             />
-            {/* Sugerencias opcionales mientras escribe (no es obligatorio
-                elegir de aca, es solo ayuda visual) */}
+            {/* Sugerencias opcionales mientras escribe (solo ayuda visual) */}
             <datalist id="lista-propiedades">
               {propiedades.map((p) => <option key={p.id} value={p.direccion} />)}
             </datalist>
           </label>
+
+          {/* INPUT de texto: se escribe el inquilino a mano.
+              Si no existe en la base, se guarda como inquilino nuevo. */}
           <label className="full">
             Inquilino *
-            <select name="inquilinoId" required>
-              <option value="">Seleccionar inquilino</option>
-              {inquilinos.map((i) => <option key={i.id} value={i.id}>{i.nombre}</option>)}
-            </select>
+            <input
+              name="inquilino"
+              required
+              placeholder="Ej. Juan Perez"
+              list="lista-inquilinos"
+            />
+            <datalist id="lista-inquilinos">
+              {inquilinos.filter((i) => i.nombre).map((i) => <option key={i.id} value={i.nombre} />)}
+            </datalist>
           </label>
+
           <label>
             Telefono
             <input name="telefono" placeholder="Ej. 351 555 0000" />
