@@ -1,52 +1,108 @@
 // Calendario: agenda real con el mes actual.
-// Lee los eventos de la coleccion 'eventos_calendario' (según tabla SQL del DER).
+// Como en el Figma: muestra TODOS los reclamos activos (no finalizados ni
+// cancelados). Cada reclamo aparece en el dia de su fecha programada (visita)
+// o de su fecha aproximada de inicio. Los urgentes van primero en la lista
+// de la derecha y se resaltan en rojo (.hot) en el dia.
+// Tambien muestra los eventos de la coleccion 'eventos_calendario'
+// (visitas programadas desde el detalle del reclamo).
 import { useState, useEffect } from 'react'
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import Badge from '../components/Badge'
 import '../App.css'
 
-export default function Calendario({ onOpen }) {
+// Convierte la fecha de un reclamo o evento a texto 'YYYY-MM-DD'.
+// Acepta strings ('2026-11-05') y timestamps de Firebase.
+function fechaTexto(fecha) {
+  if (!fecha) return ''
+  if (typeof fecha === 'string') return fecha.slice(0, 10)
+  if (typeof fecha.toDate === 'function') {
+    try { return fecha.toDate().toISOString().slice(0, 10) } catch (e) { return '' }
+  }
+  return ''
+}
+
+export default function Calendario() {
+  const [reclamos, setReclamos] = useState([])
   const [eventos, setEventos] = useState([])
   const [mes, setMes] = useState(new Date())
+
+  // Escucha reclamos y eventos en tiempo real
   useEffect(() => {
-    const q = query(collection(db, 'eventos_calendario'), orderBy('fechaInicio', 'asc'))
-    const unsub = onSnapshot(q, (snap) => {
+    const un1 = onSnapshot(collection(db, 'reclamos'), (snap) => {
+      setReclamos(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+    }, (e) => console.error('Error al leer reclamos:', e))
+    const un2 = onSnapshot(collection(db, 'eventos_calendario'), (snap) => {
       setEventos(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
     }, (e) => console.error('Error al leer eventos:', e))
-    return () => unsub()
+    return () => { un1(); un2() }
   }, [])
 
-  const opcionesMes = { month: 'long', year: 'numeric' }
-  const nombreMes = mes.toLocaleDateString('es-AR', opcionesMes)
+  // Reclamos activos: se muestran en el calendario
+  const activos = reclamos.filter(
+    (r) => !['Finalizado', 'Cancelado'].includes(r.estado)
+  )
 
+  // ------------------------------------------------------------------
+  // Eventos por dia: juntamos reclamos activos + eventos de visitas
+  // ------------------------------------------------------------------
+  const eventosPorDia = {}
+
+  function agregar(fechaStr, item) {
+    if (!fechaStr) return
+    if (!eventosPorDia[fechaStr]) eventosPorDia[fechaStr] = []
+    eventosPorDia[fechaStr].push(item)
+  }
+
+  activos.forEach((r) => {
+    // Prioridad: fecha programada (visita). Si no hay, fecha aproximada.
+    const fecha = fechaTexto(r.fechaProgramada) || fechaTexto(r.fechaAproximada)
+    agregar(fecha, {
+      tipo: 'reclamo',
+      id: r.id,
+      titulo: r.next || r.categoria || 'Reclamo',
+      prioridad: r.prioridad,
+      descripcion: (r.propiedadDireccion || '') + ' - ' + (r.inquilinoNombre || ''),
+    })
+  })
+
+  eventos.forEach((e) => {
+    agregar(fechaTexto(e.fechaInicio), {
+      tipo: 'evento',
+      id: e.id,
+      titulo: e.titulo || 'Evento',
+      prioridad: e.prioridad,
+      descripcion: e.descripcion || '',
+    })
+  })
+
+  // ------------------------------------------------------------------
+  // Lista "Lo mas urgente": reclamos activos, urgentes primero (como el
+  // Figma), maximo 5.
+  // ------------------------------------------------------------------
+  const urgentes = activos
+    .slice()
+    .sort((a, b) => {
+      const ua = (a.prioridad || '') === 'Urgente' ? 0 : 1
+      const ub = (b.prioridad || '') === 'Urgente' ? 0 : 1
+      return ua - ub
+    })
+    .slice(0, 5)
+
+  // ------------------------------------------------------------------
+  // Grilla del mes real
+  // ------------------------------------------------------------------
+  const nombreMes = mes.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
   const primerDia = new Date(mes.getFullYear(), mes.getMonth(), 1)
   const ultimoDia = new Date(mes.getFullYear(), mes.getMonth() + 1, 0)
   const cantidadDias = ultimoDia.getDate()
   const inicioSemana = (primerDia.getDay() + 6) % 7
-
-  // Agrupar eventos por fecha de inicio (YYYY-MM-DD)
-  const eventosPorDia = {}
-  eventos.forEach((e) => {
-    const fecha = e.fechaInicio
-    if (fecha) {
-      let fechaStr = fecha
-      if (fecha.toDate) fechaStr = fecha.toDate().toISOString().slice(0, 10)
-      else if (typeof fecha === 'string') fechaStr = fecha.slice(0, 10)
-      if (!eventosPorDia[fechaStr]) eventosPorDia[fechaStr] = []
-      eventosPorDia[fechaStr].push(e)
-    }
-  })
 
   const hoy = new Date()
   hoy.setHours(0, 0, 0, 0)
 
   const mesAnterior = new Date(mes.getFullYear(), mes.getMonth() - 1, 1)
   const mesSiguiente = new Date(mes.getFullYear(), mes.getMonth() + 1, 1)
-
-  const urgentes = eventos.filter(
-    (e) => (e.prioridad || '').toLowerCase() === 'urgente' && (e.estado || '').toLowerCase() !== 'cancelada'
-  )
 
   return (
     <>
@@ -69,20 +125,25 @@ export default function Calendario({ onOpen }) {
             {Array.from({ length: cantidadDias }, (_, i) => {
               const dia = i + 1
               const fechaISO = new Date(mes.getFullYear(), mes.getMonth(), dia).toISOString().slice(0, 10)
-              const evs = eventosPorDia[fechaISO] || []
+              const delDia = eventosPorDia[fechaISO] || []
               const esHoy = new Date(mes.getFullYear(), mes.getMonth(), dia).getTime() === hoy.getTime()
               return (
                 <button
                   type="button" key={dia}
-                  className={`calendar-day${evs.length ? ' has-event' : ''}${esHoy ? ' hoy' : ''}`}
-                  onClick={() => { if (evs.length && onOpen) onOpen(evs[0]) }}
+                  className={`calendar-day${delDia.length ? ' has-event' : ''}${esHoy ? ' hoy' : ''}`}
                 >
                   <b>{dia}</b>
-                  {evs.length ? (
-                    <span className={(evs[0].prioridad || '').toLowerCase() === 'urgente' ? 'hot' : ''}>
-                      {evs[0].titulo || 'Evento'}
+                  {delDia.slice(0, 2).map((item) => (
+                    <span
+                      key={item.id}
+                      className={(item.prioridad || '').toLowerCase() === 'urgente' ? 'hot' : ''}
+                    >
+                      {item.titulo}
                     </span>
-                  ) : null}
+                  ))}
+                  {delDia.length > 2 && (
+                    <span>+{delDia.length - 2} mas</span>
+                  )}
                 </button>
               )
             })}
@@ -95,18 +156,22 @@ export default function Calendario({ onOpen }) {
             <Badge tone="danger">{urgentes.length}</Badge>
           </div>
           {urgentes.length ? (
-            urgentes.map((e, i) => (
-              <button type="button" key={e.id} className="secondary full" onClick={() => { if (onOpen) onOpen(e) }}>
+            urgentes.map((r, i) => (
+              <button type="button" key={r.id} className="secondary full">
                 <span className="urgent-order">{i + 1}</span>
                 <span>
-                  <b>{e.titulo}</b>
-                  <small>{e.descripcion} · {e.fechaInicio || 'Sin fecha'}</small>
+                  <b>{r.next || 'Definir proxima accion'}</b>
+                  <small>
+                    {(r.propiedadDireccion || 'Sin propiedad')} · {fechaTexto(r.fechaProgramada) || fechaTexto(r.fechaAproximada) || 'Sin fecha'}
+                  </small>
                 </span>
-                <Badge tone="danger">{e.prioridad}</Badge>
+                <Badge tone={(r.prioridad || '') === 'Urgente' ? 'danger' : (r.prioridad || '') === 'Importante' ? 'warning' : 'neutral'}>
+                  {r.prioridad || 'Sin prioridad'}
+                </Badge>
               </button>
             ))
           ) : (
-            <p className="muted">No hay eventos urgentes pendientes.</p>
+            <p className="muted">No hay reclamos activos.</p>
           )}
         </aside>
       </div>
