@@ -448,47 +448,56 @@ export default function RepairDetail({ reclamo, onBack }) {
                 Proximo paso planificado: <b>{reclamo.next || 'Definir proximo paso'}</b>
               </p>
 
-              {/* Asignar proveedor al reclamo */}
-              <label>
-                Proveedor asignado
-                <select
-                  value={proveedorElegido}
-                  onChange={(e) => setProveedorElegido(e.target.value)}
-                >
-                  <option value="">Sin asignar</option>
-                  {proveedores.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre} - {p.especialidad}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button className="primary" onClick={asignarProveedor}>
-                Asignar proveedor
-              </button>
-              {reclamo.proveedorNombre && (
-                <p className="muted">
-                  Actualmente trabaja aca: <b>{reclamo.proveedorNombre}</b>
-                </p>
-              )}
+              {/* Dos bloques ordenados: proveedor y visita */}
+              <div className="gestion-grid">
+                {/* Bloque 1: asignar proveedor al reclamo */}
+                <div className="gestion-block">
+                  <h3>Asignar proveedor</h3>
+                  <label>
+                    Proveedor asignado
+                    <select
+                      value={proveedorElegido}
+                      onChange={(e) => setProveedorElegido(e.target.value)}
+                    >
+                      <option value="">Sin asignar</option>
+                      {proveedores.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.nombre} - {p.especialidad}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button className="primary" onClick={asignarProveedor}>
+                    Asignar proveedor
+                  </button>
+                  <p className="gestion-estado">
+                    {reclamo.proveedorNombre
+                      ? <>Actualmente trabaja aca: <b>{reclamo.proveedorNombre}</b></>
+                      : 'Todavia no hay proveedor asignado.'}
+                  </p>
+                </div>
 
-              {/* Programar la visita del proveedor */}
-              <label>
-                Programar visita
-                <input
-                  type="date"
-                  value={fechaVisita}
-                  onChange={(e) => setFechaVisita(e.target.value)}
-                />
-              </label>
-              <button className="primary" onClick={programarVisita}>
-                Programar visita
-              </button>
-              {reclamo.fechaProgramada && (
-                <p className="muted">
-                  Visita agendada para el <b>{reclamo.fechaProgramada}</b>
-                </p>
-              )}
+                {/* Bloque 2: programar la visita del proveedor */}
+                <div className="gestion-block">
+                  <h3>Programar visita</h3>
+                  <label>
+                    Fecha de la visita
+                    <input
+                      type="date"
+                      value={fechaVisita}
+                      onChange={(e) => setFechaVisita(e.target.value)}
+                    />
+                  </label>
+                  <button className="primary" onClick={programarVisita}>
+                    Programar visita
+                  </button>
+                  <p className="gestion-estado">
+                    {reclamo.fechaProgramada
+                      ? <>Visita agendada para el <b>{reclamo.fechaProgramada}</b></>
+                      : 'Todavia no hay visita agendada.'}
+                  </p>
+                </div>
+              </div>
 
               {/* Seguimientos de la subcoleccion */}
               {(seguimientos.length > 0) && (

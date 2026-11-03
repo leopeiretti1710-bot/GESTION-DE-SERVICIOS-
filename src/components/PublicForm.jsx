@@ -15,6 +15,9 @@ export default function PublicForm({ onVolver }) {
   const [enviado, setEnviado] = useState('')
   const [propiedades, setPropiedades] = useState([])
   const [inquilinos, setInquilinos] = useState([])
+  // Fotos elegidas: los archivos en si (para guardarlos) y sus vistas previas
+  const [fotosElegidas, setFotosElegidas] = useState([])
+  const [vistasPrevia, setVistasPrevia] = useState([])
 
   // Carga propiedades e inquilinos en tiempo real para los selects / referencias
   useEffect(() => {
@@ -26,6 +29,50 @@ export default function PublicForm({ onVolver }) {
     })
     return () => { un1(); un2() }
   }, [])
+
+  // ----- FOTOS: vista previa chica + guardado como base64 -----
+  // Cuando el usuario elige imagenes, creamos una URL local de cada una
+  // para mostrar la miniatura antes de enviar.
+  function elegirFotos(e) {
+    const archivos = Array.from(e.target.files || [])
+    // Liberamos las URLs de las vistas anteriores (limpieza de memoria)
+    vistasPrevia.forEach((v) => URL.revokeObjectURL(v.url))
+    setFotosElegidas(archivos)
+    setVistasPrevia(archivos.map((a) => ({ url: URL.createObjectURL(a), nombre: a.name })))
+  }
+
+  // Saca una foto de la lista antes de enviar
+  function quitarFoto(indice) {
+    URL.revokeObjectURL(vistasPrevia[indice].url)
+    setVistasPrevia(vistasPrevia.filter((_, i) => i !== indice))
+    setFotosElegidas(fotosElegidas.filter((_, i) => i !== indice))
+  }
+
+  // Lee un archivo y lo convierte a texto base64 (data URL)
+  function leerComoDataUrl(archivo) {
+    return new Promise((resolve) => {
+      const lector = new FileReader()
+      lector.onload = () => resolve(lector.result)
+      lector.readAsDataURL(archivo)
+    })
+  }
+
+  // Achica la imagen para que pese poco (Firestore admite docs de 1 MB)
+  async function comprimirImagen(archivo) {
+    const dataUrl = await leerComoDataUrl(archivo)
+    const imagen = await new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.src = dataUrl
+    })
+    const maxLado = 1200
+    const escala = Math.min(1, maxLado / Math.max(imagen.width, imagen.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(imagen.width * escala)
+    canvas.height = Math.round(imagen.height * escala)
+    canvas.getContext('2d').drawImage(imagen, 0, 0, canvas.width, canvas.height)
+    return canvas.toDataURL('image/jpeg', 0.75)
+  }
 
   async function submit(e) {
     e.preventDefault()
@@ -83,7 +130,7 @@ export default function PublicForm({ onVolver }) {
     }
 
     // Guardamos el reclamo en Firestore con origen "Inquilino"
-    await addDoc(collection(db, 'reclamos'), {
+    const reclamoNuevo = await addDoc(collection(db, 'reclamos'), {
       codigo,
       propiedadId,
       propiedadDireccion: direccionEscrita,
@@ -103,6 +150,28 @@ export default function PublicForm({ onVolver }) {
       fechaIngreso: serverTimestamp(),
       next: 'Evaluar reclamo',
     })
+
+    // Las fotos elegidas se guardan como base64 en la subcoleccion 'archivos'
+    // del reclamo (igual que en el detalle, sin Firebase Storage).
+    for (const foto of fotosElegidas) {
+      try {
+        const data = await comprimirImagen(foto)
+        await addDoc(collection(db, 'reclamos', reclamoNuevo.id, 'archivos'), {
+          nombreArchivo: foto.name,
+          tipoArchivo: foto.type,
+          tamano: Math.round(data.length * 0.75),
+          data,
+          fechaSubida: new Date(),
+        })
+      } catch (errorFoto) {
+        console.error('No se pudo guardar una foto:', errorFoto)
+      }
+    }
+
+    // Limpiamos las vistas previa (y liberamos la memoria de las URLs)
+    vistasPrevia.forEach((v) => URL.revokeObjectURL(v.url))
+    setFotosElegidas([])
+    setVistasPrevia([])
 
     setEnviado(codigo)
   }
@@ -232,7 +301,45 @@ export default function PublicForm({ onVolver }) {
             </label>
             <label className="full">
               Fotografias
-              <input type="file" name="fotos" multiple accept="image/*" />
+              {/* Zona de carga estilizada: al tocarla se abre el explorador.
+                  El input nativo queda oculto dentro del label. */}
+              <div className="upload-zone">
+                <span className="upload-icon">+</span>
+                <span>
+                  <b>Toca para agregar fotos</b>
+                  <small>JPG o PNG · podes elegir varias</small>
+                </span>
+              </div>
+              <input
+                type="file"
+                name="fotos"
+                multiple
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={elegirFotos}
+              />
+              {/* Vistas previas chicas de las fotos elegidas */}
+              {vistasPrevia.length > 0 && (
+                <div className="fotos-preview">
+                  {vistasPrevia.map((vista, indice) => (
+                    <div className="foto-mini" key={vista.url}>
+                      <img src={vista.url} alt={vista.nombre} />
+                      <button
+                        type="button"
+                        aria-label="Quitar foto"
+                        onClick={(e) => {
+                          // Evita que el label abra el explorador de archivos
+                          e.preventDefault()
+                          e.stopPropagation()
+                          quitarFoto(indice)
+                        }}
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </label>
           </div>
         </section>
