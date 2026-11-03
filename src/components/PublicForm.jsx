@@ -35,8 +35,33 @@ export default function PublicForm({ onVolver }) {
     const importancia = String(f.get('importancia'))
 
     const codigo = 'REC-' + Date.now()
-    const propiedadId = String(f.get('propiedadId'))
-    const propiedad = propiedades.find((p) => p.id === propiedadId)
+
+    // La propiedad se escribe a mano. Si ya existe en la base (misma
+    // direccion) se usa su documento; si no, se crea automaticamente.
+    const direccionEscrita = String(f.get('direccion') || '').trim()
+    let propiedadId = ''
+    const propiedadExistente = propiedades.find(
+      (p) => (p.direccion || '').toLowerCase() === direccionEscrita.toLowerCase()
+    )
+    if (propiedadExistente) {
+      propiedadId = propiedadExistente.id
+    } else {
+      const nueva = await addDoc(collection(db, 'propiedades'), {
+        direccion: direccionEscrita,
+        barrio: '',
+        piso: '',
+        unidad: String(f.get('unidad') || ''),
+        tipoInmueble: '',
+        propietarioNombre: '',
+        propietarioTelefono: '',
+        propietarioEmail: '',
+        observaciones: 'Creada automaticamente desde el formulario publico.',
+        activa: true,
+        fechaRegistro: serverTimestamp(),
+      })
+      propiedadId = nueva.id
+    }
+
     const nombreInquilino = String(f.get('nombre'))
 
     // Referencia 'inquilinoId' del dbdiagram: si el inquilino ya existe
@@ -60,10 +85,8 @@ export default function PublicForm({ onVolver }) {
     // Guardamos el reclamo en Firestore con origen "Inquilino"
     await addDoc(collection(db, 'reclamos'), {
       codigo,
-      propiedadId: propiedadId || '',
-      propiedadDireccion: propiedad
-        ? propiedad.direccion
-        : String(f.get('direccion')),
+      propiedadId,
+      propiedadDireccion: direccionEscrita,
       inquilinoId,
       inquilinoNombre: nombreInquilino,
       telefono: String(f.get('telefono')),
@@ -144,15 +167,19 @@ export default function PublicForm({ onVolver }) {
               <input name="telefono" required placeholder="Ej. 351 555 0000" />
             </label>
             <label className="full">
-              Propiedad *
-              <select name="propiedadId" required>
-                <option value="">Seleccionar propiedad</option>
+              Direccion de la propiedad *
+              <input
+                name="direccion"
+                required
+                placeholder="Ej. Moron 1240"
+                list="lista-propiedades-publica"
+              />
+              {/* Sugerencias opcionales mientras escribe */}
+              <datalist id="lista-propiedades-publica">
                 {propiedades.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.direccion} {p.unidad ? ' - ' + p.unidad : ''}
-                  </option>
+                  <option key={p.id} value={p.direccion} />
                 ))}
-              </select>
+              </datalist>
             </label>
             <label className="full">
               Numero de matricula de la propiedad *
