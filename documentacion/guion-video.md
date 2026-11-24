@@ -1,7 +1,7 @@
 # Guion de locucion - Video demostrativo
 
 **Proyecto:** Gestion de Reparaciones MEZI
-**Duracion del video:** 2 minutos 20 segundos (sin audio; la voz se graba aparte)
+**Duracion del video:** 2 minutos 20 segundos (con voz en off incluida en el archivo final)
 **Ritmo sugerido:** unas 130 palabras por minuto, con pausas entre bloques.
 Los tiempos corresponden al video final: no los leas, usalos solo para ubicarte.
 
@@ -78,7 +78,7 @@ Asi, cada reparacion queda registrada, ordenada y con un responsable claro.
 
 - Fuente: captura directa de la pagina con CDP (Playwright), no captura de
   escritorio, para que no aparezca ninguna otra ventana.
-- Sin audio: la voz se graba aparte y se mezcla en la edicion.
+- Audio: voz en off grabada aparte (PTT de WhatsApp en Opus) y mezclada en el MP4 final.
 - Resolucion: 1440 x 900, 25 cuadros por segundo, formato MP4.
 - Secuencia: intro, inicio de sesion, Reclamos, nuevo reclamo, detalle,
   gestion interna, presupuestos, autorizacion, calendario, proveedores,
