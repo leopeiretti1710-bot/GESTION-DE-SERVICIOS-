@@ -33,7 +33,8 @@ formulario público completo, fotos y confirmación.
 
 ## 2. Acceso (0:08 - 0:20.8)
 
-**Pantalla:** login con correo y contraseña, entrada al panel.
+**Pantalla:** login con correo y contraseña, entrada al panel. El correo visible es
+`admin@mezipropiedades.com` (cuenta genérica de demostración, sin datos personales).
 
 "El acceso es privado, con usuario y contraseña. Entra el equipo administrativo. Si no tiene cuenta, puede ver el panel en modo demostración. Todo queda guardado en Firebase."
 
@@ -41,8 +42,9 @@ formulario público completo, fotos y confirmación.
 
 ## 3. Reclamos (0:20.8 - 0:29.8)
 
-**Pantalla:** panel Reclamos con KPIs y listado agrupado por prioridad. Se encuadran las cuatro
-filas y el cursor pasa por Urgente, Importante, Puede esperar y Ya resuelto.
+**Pantalla:** panel Reclamos con KPIs y listado agrupado por prioridad. Los KPIs quedan arriba
+mientras la voz dice "Arriba los números clave"; después la vista baja suavemente al tablero y el
+cursor pasa por Urgente, Importante, Puede esperar y Ya resuelto en ese orden.
 
 "Arrancamos por Reclamos. Arriba, los números clave. Abajo, los casos se agrupan por urgencia: urgente, importante, puede esperar y resuelto."
 
@@ -66,7 +68,7 @@ filas y el cursor pasa por Urgente, Importante, Puede esperar y Ya resuelto.
 
 ## 6. Alta de reclamo (0:44.3 - 0:54.5)
 
-**Pantalla:** modal "Nuevo reclamo" completo.
+**Pantalla:** modal "Nuevo reclamo" completo, con el título "Carga interna" sin espacios entre palabras.
 
 "Cargar un reclamo lleva segundos. Propiedad e inquilino se crean solos. Prioridad, categoría, descripción y riesgo, en un mismo formulario."
 
@@ -130,7 +132,8 @@ filas y el cursor pasa por Urgente, Importante, Puede esperar y Ya resuelto.
 
 ## 14. Alta de proveedor (1:51.3 - 1:59.4)
 
-**Pantalla:** modal "Nuevo proveedor", completo y con clic visible en "Guardar proveedor".
+**Pantalla:** modal "Nuevo proveedor", completo y con clic visible en "Guardar proveedor". El nombre
+cargado es "Proveedor Demostración", con tilde, y se mantiene en la ficha posterior.
 
 "Alta de proveedor con teléfono, WhatsApp, correo, disponibilidad, urgencias y estado. Todo en un formulario."
 
@@ -154,7 +157,8 @@ filas y el cursor pasa por Urgente, Importante, Puede esperar y Ya resuelto.
 
 ## 17. Fotos (2:17.6 - 2:26.8)
 
-**Pantalla:** zona de carga, dos miniaturas reales y botón X; en 2:18 se elimina la segunda con clic visible.
+**Pantalla:** zona de carga, dos miniaturas reales y botón X; en 2:18 el cursor se posa sobre la X
+de la segunda miniatura y se hace clic ahí mismo para eliminarla.
 
 "Puede subir varias fotos, ver la miniatura y quitar la que no corresponde. Las imágenes quedan en la base, sin costo extra de almacenamiento."
 
@@ -188,24 +192,34 @@ las tarjetas Control, Velocidad y Eficiencia encendiéndose una por una con la l
   movimientos reales (creación, asignación, visita, presupuesto y autorización).
 - Cursor artificial con animación de clic: se inyecta solo desde el script de grabación
   (`record-por-audio.js`), no en el código de la app.
-- En 0:21 se encuadran las cuatro filas por urgencia (Urgente, Importante, Puede esperar y
-  Ya resuelto) y el cursor recorre cada encabezado mientras la voz las nombra.
+- En 0:20.8 los KPIs permanecen arriba mientras la voz dice "Arriba los números clave". Después
+  se hace un scroll suave y el cursor recorre Urgente, Importante, Puede esperar y Ya resuelto.
+- El login usa la cuenta genérica `admin@mezipropiedades.com`, creada en Firebase Auth, así que
+  el correo del login y del pie de sidebar es el mismo en toda la grabación.
+- El eyebrow del modal de reclamo lleva `letter-spacing:0` para que se lea "CARGA INTERNA"
+  como una sola frase y no "CARGA IN TERNA".
 - Fundido cruzado directo: una captura de la portada tapa la navegacion hasta que aparece el login,
   y una captura de la confirmación hace lo mismo hasta la placa final. No hay pantalla negra en 0:08.
 - En Documentación se adjuntan dos fotos reales al reclamo; `RepairDetail.jsx` muestra miniaturas
   para que se vean las imágenes guardadas como base64 en Firestore, sin Storage de pago.
 - En el alta de proveedor se completan WhatsApp `351 555-0001`, correo `contacto@proveedordemo.com`
-  y Atiende urgencias `Si`; luego se hace clic visible en "Guardar proveedor" antes de abrir la ficha.
-- En el formulario público se completa "Lunes a viernes de 9 a 17 hs" y en 2:18 se hace clic visible
-  sobre la X de la segunda miniatura para eliminarla.
+  y Atiende urgencias `Si`; el nombre es "Proveedor Demostración" con tilde y se hace clic visible
+  en "Guardar proveedor" antes de abrir la ficha.
+- En el formulario público se completa "Lunes a viernes de 9 a 17 hs". En 2:18 el cursor se posa
+  sobre el centro exacto de la X de la segunda miniatura y se hace clic ahí (`clicPreciso`).
 - Placas de inicio y cierre con tildes, movimiento lento y, en el cierre, tarjetas Control,
   Velocidad y Eficiencia que se encienden de a una: `documentacion/slide-ventas-intro.html`
   y `documentacion/slide-ventas-cierre.html`.
 - Fotos reales libres de Pexels descargadas como `foto-fuga-agua.jpg` y `foto-humedad-pared.jpg`;
   se usan en Documentación y en el formulario público.
-- Audio: PTT del 2026-11-25, grabado aparte. Se bajó 5 dB para quitar los picos recortados del
-  original (+3.3 dB). No se usó limitador ni filtros agresivos. Se trabajó en WAV y se comprime
-  a AAC una sola vez, a 192 kb/s. Cada unión lleva un fundido de 8 ms para evitar clics.
+- Audio limpio: se parte del OGG original decodificado a WAV PCM 48 kHz mono (`audio-base.wav`,
+  bajado 5 dB para quitar los picos recortados del original). `align-audio.js` solo hace `atrim`
+  y `concat` de silencios con fundidos de 8 ms. No hay `atempo`, `asetrate`, `rubberband`,
+  time-stretching, pitch shift ni filtros de voz con IA: la velocidad queda exactamente en 1.0x.
+  El ajuste de duración se hace recortando el video a 178 s, nunca tocando la voz.
+- Nitidez: la conversión de WebM a MP4 no interpola fotogramas; se mantienen los 25 fps originales
+  y el video H.264 se copia sin recodificar en el mux final. Se codificó con CRF 18 para preservar
+  bordes y tipografía.
 - Los silencios se ajustaron para que cada frase empiece justo cuando el video muestra esa pantalla:
   9.80, 20.80, 29.80, 40.00, 44.30, 54.50, 62.60, 71.70, 78.80, 85.60, 91.00, 100.10, 111.30,
   119.40, 127.50, 137.60, 146.80 y 155.90. No se cortó ninguna frase, solo se cambió el largo
