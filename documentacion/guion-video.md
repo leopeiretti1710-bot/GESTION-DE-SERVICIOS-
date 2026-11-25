@@ -179,7 +179,10 @@ formulario publico completo, fotos y confirmacion.
 
 - Video: `documentacion/video-ventas-demo.mp4`, H.264, 1440x900, 25 fps, 180.00 s exactos.
 - Se recorto el WebM original a 4500 frames para clavar 3:00.00.
-- Audio: grabacion nueva; se mezcla con `-c:v copy -c:a aac -b:a 96k`.
+- Audio: PTT del 2026-11-25, grabado aparte. Se limpio con highpass 80 Hz, lowpass 13 kHz,
+  bajada de 4.5 dB y limitador a 0.85 para quitar los picos recortados del original (+3.3 dB).
+  Se mezcla con `-c:v copy -c:a aac -b:a 128k` y se rellena el final hasta 180.00 s.
+  Resultado: pico maximo -1.4 dB, sin muestras recortadas y sin ruido de fondo en los silencios.
 - Resultado: `documentacion/video-ventas-final.mp4`.
 - El video fue generado con Playwright/CDP sobre la app real, no con captura de escritorio.
 - No se muestran avisos por WhatsApp ni IA real porque no estan implementados en `main`.
