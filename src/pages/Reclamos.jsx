@@ -57,7 +57,7 @@ export default function Reclamos({ busqueda }) {
 
   // Se ejecuta cuando se crea un reclamo nuevo
   async function handleCreate(reclamo) {
-    await addDoc(collection(db, 'reclamos'), {
+    const ref = await addDoc(collection(db, 'reclamos'), {
       codigo: 'REC-' + Date.now(),
       propiedadId: reclamo.propiedadId || '',
       propiedadDireccion: reclamo.propiedadDireccion,
@@ -76,6 +76,14 @@ export default function Reclamos({ busqueda }) {
       fechaIngreso: serverTimestamp(),
       next: 'Evaluar reclamo',
       verificado: false,
+    })
+    // El historial nace con el reclamo: asi la pestaña Historial nunca
+    // aparece vacia cuando se abre un reclamo recien creado.
+    await addDoc(collection(db, 'reclamos', ref.id, 'historial'), {
+      fechaCambio: new Date(),
+      accion: 'Reclamo creado',
+      descripcion: 'Reclamo creado por MEZI Propiedades: ' + (reclamo.categoria || 'sin categoria') + '.',
+      realizadoPor: 'Usuario del sistema',
     })
     setCreating(false)
   }

@@ -168,6 +168,14 @@ export default function PublicForm({ onVolver }) {
       }
     }
 
+    // Historial real del reclamo, tambien cuando viene del formulario publico
+    await addDoc(collection(db, 'reclamos', reclamoNuevo.id, 'historial'), {
+      fechaCambio: new Date(),
+      accion: 'Reclamo creado',
+      descripcion: 'Solicitud recibida desde el formulario publico.',
+      realizadoPor: 'Inquilino',
+    })
+
     // Limpiamos las vistas previa (y liberamos la memoria de las URLs)
     vistasPrevia.forEach((v) => URL.revokeObjectURL(v.url))
     setFotosElegidas([])

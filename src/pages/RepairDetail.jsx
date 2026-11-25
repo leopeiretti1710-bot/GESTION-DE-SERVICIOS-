@@ -87,6 +87,19 @@ export default function RepairDetail({ reclamo, onBack }) {
     setTimeout(() => setToast(''), 2500)
   }
 
+  // Guarda un movimiento real en la pestaña Historial.
+  // Antes algunas acciones solo escribian en Seguimientos y el Historial
+  // quedaba vacio. Ahora cada accion deja su registro visible.
+  async function registrarHistorial(accion, descripcion, extra = {}) {
+    await addDoc(collection(db, 'reclamos', reclamo.id, 'historial'), {
+      fechaCambio: new Date(),
+      accion,
+      descripcion,
+      realizadoPor: 'Usuario del sistema',
+      ...extra,
+    })
+  }
+
   async function guardarEstado() {
     if (estadoElegido === reclamo.estado) {
       mostrarToast('El estado ya es ese')
@@ -95,13 +108,9 @@ export default function RepairDetail({ reclamo, onBack }) {
     await updateDoc(doc(db, 'reclamos', reclamo.id), {
       estado: estadoElegido,
     })
-    await addDoc(collection(db, 'reclamos', reclamo.id, 'historial'), {
-      fechaCambio: new Date(),
-      accion: 'Cambio de estado',
+    await registrarHistorial('Cambio de estado', 'Estado cambiado a "' + estadoElegido + '".', {
       estadoAnterior: reclamo.estado,
       estadoNuevo: estadoElegido,
-      descripcion: 'Estado cambiado a "' + estadoElegido + '".',
-      realizadoPor: 'Usuario del sistema',
     })
     mostrarToast('Estado actualizado a "' + estadoElegido + '"')
   }
@@ -111,13 +120,9 @@ export default function RepairDetail({ reclamo, onBack }) {
       estado: 'Finalizado',
       next: '',
     })
-    await addDoc(collection(db, 'reclamos', reclamo.id, 'historial'), {
-      fechaCambio: new Date(),
-      accion: 'Cierre de reparacion',
+    await registrarHistorial('Cierre de reparacion', 'Reparacion finalizada por MEZI Propiedades.', {
       estadoAnterior: reclamo.estado,
       estadoNuevo: 'Finalizado',
-      descripcion: 'Reparacion finalizada por MEZI Propiedades.',
-      realizadoPor: 'Usuario del sistema',
     })
     setEstadoElegido('Finalizado')
     mostrarToast('Reparacion finalizada')
@@ -129,6 +134,10 @@ export default function RepairDetail({ reclamo, onBack }) {
       proveedorId: elegido ? elegido.id : '',
       proveedorNombre: elegido ? elegido.nombre : '',
     })
+    await registrarHistorial(
+      'Proveedor asignado',
+      elegido ? 'Proveedor asignado: ' + elegido.nombre + ' (' + elegido.especialidad + ').' : 'Proveedor desasignado.'
+    )
     await addDoc(collection(db, 'reclamos', reclamo.id, 'seguimientos'), {
       fechaRegistro: new Date(),
       tipoGestion: 'Asignacion',
@@ -155,6 +164,10 @@ export default function RepairDetail({ reclamo, onBack }) {
       descripcion: 'Trabajo de ' + (reclamo.categoria || '').toLowerCase(),
       fechaCreacion: new Date(),
     })
+    await registrarHistorial(
+      'Presupuesto cargado',
+      'Presupuesto agregado por $' + monto.toLocaleString('es-AR') + '.'
+    )
     await addDoc(collection(db, 'reclamos', reclamo.id, 'seguimientos'), {
       fechaRegistro: new Date(),
       tipoGestion: 'Presupuesto',
@@ -177,6 +190,7 @@ export default function RepairDetail({ reclamo, onBack }) {
       medioContacto: '',
       observaciones: '',
     })
+    await registrarHistorial('Autorizacion guardada', 'El propietario respondio: ' + decision + '.')
     await addDoc(collection(db, 'reclamos', reclamo.id, 'seguimientos'), {
       fechaRegistro: new Date(),
       tipoGestion: 'Autorizacion',
@@ -299,6 +313,7 @@ export default function RepairDetail({ reclamo, onBack }) {
       responsable: reclamo.proveedorNombre || 'Sin asignar',
       recordatorio: true,
     })
+    await registrarHistorial('Visita programada', 'Visita programada para ' + fechaVisita + '.')
     await addDoc(collection(db, 'reclamos', reclamo.id, 'seguimientos'), {
       fechaRegistro: new Date(),
       tipoGestion: 'Programacion',
