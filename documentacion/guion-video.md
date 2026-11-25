@@ -1,12 +1,12 @@
 # Guion de video comercial - Gestión de Reparaciones MEZI
 
 **Objetivo:** vender la plataforma mostrando las funciones con más valor, sin perder información importante.
-**Duración del video:** 3 minutos 00 segundos (180.00 s, 4500 frames a 25 fps).
+**Duración del video:** 2 minutos 58 segundos (178.00 s, 4450 frames a 25 fps).
 **Formato:** voz en off grabada aparte (PTT de WhatsApp en Opus) y mezclada en el MP4 final.
 
 ## Qué se sacó y por qué
 
-Para bajar de 3:50 a 3:00 se quitaron solo las partes con menos peso comercial:
+Para bajar de 3:50 a 2:58 se quitaron solo las partes con menos peso comercial:
 
 - **Confirmación de eliminar reclamo:** muestra una acción destructiva, no vende.
 - **Navegación entre meses del calendario:** es una comprobación técnica, no aporta al mensaje.
@@ -41,7 +41,8 @@ formulario público completo, fotos y confirmación.
 
 ## 3. Reclamos (0:20.8 - 0:29.8)
 
-**Pantalla:** panel Reclamos con KPIs y listado agrupado por prioridad.
+**Pantalla:** panel Reclamos con KPIs y listado agrupado por prioridad. Se encuadran las cuatro
+filas y el cursor pasa por Urgente, Importante, Puede esperar y Ya resuelto.
 
 "Arrancamos por Reclamos. Arriba, los números clave. Abajo, los casos se agrupan por urgencia: urgente, importante, puede esperar y resuelto."
 
@@ -73,7 +74,7 @@ formulario público completo, fotos y confirmación.
 
 ## 7. Detalle del reclamo (0:54.5 - 1:02.6)
 
-**Pantalla:** tab Resumen con documentación y acciones laterales.
+**Pantalla:** tab Resumen con documentación y acciones laterales; en 0:58 se muestran dos fotos reales adjuntas.
 
 "En el detalle aparece toda la ficha: inquilino, matrícula, dirección, fecha y categoría. Las fotos se adjuntan sin Storage de pago."
 
@@ -129,7 +130,7 @@ formulario público completo, fotos y confirmación.
 
 ## 14. Alta de proveedor (1:51.3 - 1:59.4)
 
-**Pantalla:** modal "Nuevo proveedor".
+**Pantalla:** modal "Nuevo proveedor", completo y con clic visible en "Guardar proveedor".
 
 "Alta de proveedor con teléfono, WhatsApp, correo, disponibilidad, urgencias y estado. Todo en un formulario."
 
@@ -145,7 +146,7 @@ formulario público completo, fotos y confirmación.
 
 ## 16. Formulario público (2:07.5 - 2:17.6)
 
-**Pantalla:** formulario para inquilinos con sus tres bloques. Los campos se rellenan mientras la voz los nombra.
+**Pantalla:** formulario para inquilinos con sus tres bloques. Los campos se rellenan mientras la voz los nombra, incluida la disponibilidad horaria.
 
 "El inquilino usa un formulario público simple: sus datos, el problema y la disponibilidad. No hace falta explicarle nada: el formulario lo guía."
 
@@ -153,7 +154,7 @@ formulario público completo, fotos y confirmación.
 
 ## 17. Fotos (2:17.6 - 2:26.8)
 
-**Pantalla:** zona de carga, dos miniaturas reales y botón X.
+**Pantalla:** zona de carga, dos miniaturas reales y botón X; en 2:18 se elimina la segunda con clic visible.
 
 "Puede subir varias fotos, ver la miniatura y quitar la que no corresponde. Las imágenes quedan en la base, sin costo extra de almacenamiento."
 
@@ -167,9 +168,10 @@ formulario público completo, fotos y confirmación.
 
 ---
 
-## 19. Cierre comercial (2:35.9 - 3:00)
+## 19. Cierre comercial (2:35.9 - 2:58)
 
-**Pantalla:** placa `documentacion/slide-ventas-cierre.html`, con acentos correctos y zoom lento.
+**Pantalla:** placa `documentacion/slide-ventas-cierre.html`, con acentos correctos, zoom lento y
+las tarjetas Control, Velocidad y Eficiencia encendiéndose una por una con la locución.
 
 "En resumen: control, velocidad y eficiencia. Cada caso tiene estado, prioridad e historial. La carga interna y el formulario del inquilino alimentan el mismo sistema. Firebase en plan gratuito, sin servidores ni almacenamiento de pago. Menos gestión manual, más tiempo para tus propiedades. ¿Querés verla con tus propios datos? Hablemos."
 
@@ -177,21 +179,30 @@ formulario público completo, fotos y confirmación.
 
 ## Parte técnica (no se lee)
 
-- Video final: `documentacion/video-ventas-final.mp4`, H.264, 1440x900, 25 fps, 180.00 s exactos.
+- Video final: `documentacion/video-ventas-final.mp4`, H.264, 1440x900, 25 fps, 178.00 s exactos.
 - Mudo de respaldo: `documentacion/video-ventas-demo.mp4` (mismo video sin voz).
-- Se recortó el WebM original a 4500 frames para clavar 3:00.00.
+- Se recortó el WebM original a 4450 frames para clavar 2:58.00 y cortar el audio en inglés del final.
 - Video regrabado desde cero con el audio como referencia. Cada cambio de pantalla y cada acción
   ocurre en el segundo exacto en que la voz lo menciona. Los KPI filtran de verdad, se asigna
   proveedor, se programa visita, se carga `85000` como presupuesto y el Historial muestra cinco
   movimientos reales (creación, asignación, visita, presupuesto y autorización).
-- Cursor artificial con animación de clic y fundidos entre escenas: se inyectan solo desde el script
-  de grabación (`record-por-audio.js`), no en el código de la app.
-- Una capa oscura inyectada antes de cargar cada página evita el fotograma blanco en 0:08. Se crea
-  una sola vez por documento y se desconecta su observador para que no tape el video.
-- Placas de inicio y cierre con tildes y movimiento lento: `documentacion/slide-ventas-intro.html`
+- Cursor artificial con animación de clic: se inyecta solo desde el script de grabación
+  (`record-por-audio.js`), no en el código de la app.
+- En 0:21 se encuadran las cuatro filas por urgencia (Urgente, Importante, Puede esperar y
+  Ya resuelto) y el cursor recorre cada encabezado mientras la voz las nombra.
+- Fundido cruzado directo: una captura de la portada tapa la navegacion hasta que aparece el login,
+  y una captura de la confirmación hace lo mismo hasta la placa final. No hay pantalla negra en 0:08.
+- En Documentación se adjuntan dos fotos reales al reclamo; `RepairDetail.jsx` muestra miniaturas
+  para que se vean las imágenes guardadas como base64 en Firestore, sin Storage de pago.
+- En el alta de proveedor se completan WhatsApp `351 555-0001`, correo `contacto@proveedordemo.com`
+  y Atiende urgencias `Si`; luego se hace clic visible en "Guardar proveedor" antes de abrir la ficha.
+- En el formulario público se completa "Lunes a viernes de 9 a 17 hs" y en 2:18 se hace clic visible
+  sobre la X de la segunda miniatura para eliminarla.
+- Placas de inicio y cierre con tildes, movimiento lento y, en el cierre, tarjetas Control,
+  Velocidad y Eficiencia que se encienden de a una: `documentacion/slide-ventas-intro.html`
   y `documentacion/slide-ventas-cierre.html`.
-- Miniaturas del formulario público: fotos reales libres de Pexels descargadas como
-  `foto-fuga-agua.jpg` y `foto-humedad-pared.jpg`; se guardan como base64 en Firestore, sin Storage.
+- Fotos reales libres de Pexels descargadas como `foto-fuga-agua.jpg` y `foto-humedad-pared.jpg`;
+  se usan en Documentación y en el formulario público.
 - Audio: PTT del 2026-11-25, grabado aparte. Se bajó 5 dB para quitar los picos recortados del
   original (+3.3 dB). No se usó limitador ni filtros agresivos. Se trabajó en WAV y se comprime
   a AAC una sola vez, a 192 kb/s. Cada unión lleva un fundido de 8 ms para evitar clics.
@@ -199,10 +210,11 @@ formulario público completo, fotos y confirmación.
   9.80, 20.80, 29.80, 40.00, 44.30, 54.50, 62.60, 71.70, 78.80, 85.60, 91.00, 100.10, 111.30,
   119.40, 127.50, 137.60, 146.80 y 155.90. No se cortó ninguna frase, solo se cambió el largo
   de las pausas.
-- Resultado: 180.00 s, audio AAC 48 kHz mono a 192 kb/s, pico máximo -2.1 dB, sin muestras
-  recortadas, sin ruido de fondo y sin fotograma blanco en 0:08 (YAVG=44 en 8.00 s y 8.48 s).
+- Resultado: 178.00 s, audio AAC 48 kHz mono a 192 kb/s, pico máximo -2.1 dB, sin muestras
+  recortadas, sin ruido de fondo y sin pantalla negra en 0:08 (fundido cruzado desde la portada).
 - El video fue generado con Playwright/CDP sobre la app real, no con captura de escritorio.
 - No se muestran avisos por WhatsApp ni IA real porque no están implementados en `main`.
 - Datos sembrados para la grabación: 4 proveedores, 6 reclamos de demostración y 4 visitas en
-  noviembre de 2026. El formulario público creó `REC-1795585487945`. Todos esos datos se borraron
-  después de grabar; quedaron solo los documentos de ejemplo anteriores.
+  noviembre de 2026, más el proveedor y el reclamo creados durante el video. Todos se borraron
+  después de grabar; la limpieza lee el código público desde `tiempos-audio-base.json`. Quedaron
+  solo los documentos de ejemplo anteriores.

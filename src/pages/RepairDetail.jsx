@@ -413,10 +413,16 @@ export default function RepairDetail({ reclamo, onBack }) {
                     {archivos.map((archivo) => (
                       <div className="file-item" key={archivo.id}>
                         <div className="file-info">
-                          <b>{archivo.nombreArchivo}</b>
-                          <small>
-                            {archivo.tipoArchivo || 'archivo'} · {Math.round((archivo.tamano || 0) / 1024)} KB
-                          </small>
+                          {/* Miniatura para que las fotos adjuntas se vean en la ficha */}
+                          {(archivo.tipoArchivo || '').startsWith('image/') && (
+                            <img className="file-thumb" src={archivo.data} alt={archivo.nombreArchivo} />
+                          )}
+                          <span>
+                            <b>{archivo.nombreArchivo}</b>
+                            <small>
+                              {archivo.tipoArchivo || 'archivo'} · {Math.round((archivo.tamano || 0) / 1024)} KB
+                            </small>
+                          </span>
                         </div>
                         <div className="file-actions">
                           {/* Ver / descargar: el href base64 abre el archivo */}
