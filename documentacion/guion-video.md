@@ -179,13 +179,17 @@ formulario publico completo, fotos y confirmacion.
 
 - Video: `documentacion/video-ventas-demo.mp4`, H.264, 1440x900, 25 fps, 180.00 s exactos.
 - Se recorto el WebM original a 4500 frames para clavar 3:00.00.
+- Video: regrabado desde cero con el audio como referencia. Cada cambio de pantalla y cada accion
+  ocurre en el segundo exacto en que la voz lo menciona. Por ejemplo, los grupos de prioridad se
+  muestran apenas se nombran los urgentes, y las visitas se programan cuando se habla de la visita.
 - Audio: PTT del 2026-11-25, grabado aparte. Se bajo 5 dB para quitar los picos recortados del
-  original (+3.3 dB). No se uso limitador ni filtros agresivos para evitar distorsiones.
-  Se trabajo en WAV y se comprime a AAC una sola vez, a 192 kb/s.
+  original (+3.3 dB). No se uso limitador ni filtros agresivos. Se trabajo en WAV y se comprime
+  a AAC una sola vez, a 192 kb/s. Cada union lleva un fundido de 8 ms para evitar clics.
 - Los silencios se ajustaron para que cada frase empiece justo cuando el video muestra esa pantalla:
-  9.80, 20.80, 54.50, 62.60, 71.70, 78.80, 85.88, 91.00, 100.10, 111.30, 119.40, 127.50,
-  137.60, 146.80 y 155.90. No se corto ninguna frase, solo se cambio el largo de las pausas.
-- Resultado: 180.00 s, pico maximo -1.7 dB, sin muestras recortadas y sin ruido de fondo.
+  9.80, 20.80, 29.80, 40.00, 44.30, 54.50, 62.60, 71.70, 78.80, 85.80, 91.00, 100.10, 111.30,
+  119.40, 127.50, 137.60, 146.80 y 155.90. No se corto ninguna frase, solo se cambio el largo
+  de las pausas.
+- Resultado: 180.00 s, pico maximo -2.1 dB, sin muestras recortadas y sin ruido de fondo.
 - Resultado: `documentacion/video-ventas-final.mp4`.
 - El video fue generado con Playwright/CDP sobre la app real, no con captura de escritorio.
 - No se muestran avisos por WhatsApp ni IA real porque no estan implementados en `main`.
